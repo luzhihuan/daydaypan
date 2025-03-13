@@ -48,7 +48,13 @@ const api = {
     //获取分享文件列表
     loadShareList: '/share/loadShareList',
     //取消分享
-    cancelShare: '/share/cancelShare'
+    cancelShare: '/share/cancelShare',
+
+
+
+    
+    //检查app
+    checkUpdate: '/update/checkUpdate',
 
 }
 
