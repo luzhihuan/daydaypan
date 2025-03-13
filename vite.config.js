@@ -20,7 +20,7 @@ export default defineConfig({
     hmr:true,
     proxy:{
       "/api":{
-        target:"http://localhost:7070/",
+        target:"http://10.202.14.239:7070",
         changeOrigin:true,
         pathRewrite:{
           "^api":"/api"
