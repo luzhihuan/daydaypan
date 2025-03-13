@@ -3,44 +3,52 @@ const api = {
     //获取验证码
     checkCode: "/account/checkCode",
     //发送邮箱验证码
-    sendEmailCode:"/account/sendEmailCode",
+    sendEmailCode: "/account/sendEmailCode",
     //注册
-    register:"/account/register",
+    register: "/account/register",
     //登录
-    login:"account/login",
+    login: "account/login",
     //重置密码
-    resetPassword:"/account/resetPassword",
+    resetPassword: "/account/resetPassword",
     //获取用户头像
-    avatarUrl:'/account/getAvatar/',
+    avatarUrl: '/account/getAvatar/',
     //更新用户头像
-    updateUserAvatar:'/account/updateUserAvatar',
+    updateUserAvatar: '/account/updateUserAvatar',
     //修改密码
-    updatePassword:'/account/updatePassword',
+    updatePassword: '/account/updatePassword',
     //退出登录
-    loginOut:'/account/loginOut',
+    loginOut: '/account/loginOut',
     //获取用户空间
-    getUserSpace:'/account/getUseSpace',
+    getUserSpace: '/account/getUseSpace',
 
     //获取文件列表
-    loadFileList:'/file/loadFileList',
+    loadFileList: '/file/loadFileList',
     //重命名
-    rename:"/file/rename",
+    rename: "/file/rename",
     //新建文件夹
-    newFolder:"/file/newFolder",
+    newFolder: "/file/newFolder",
     //获取文件夹信息
-    getFolderInfo:"/file/getFolderInfo",
+    getFolderInfo: "/file/getFolderInfo",
     //删除文件
-    delFile:"/file/delFile",
+    delFile: "/file/delFile",
     //移动文件
-    changeFileFolder:"/file/changeFileFolder",
+    changeFileFolder: "/file/changeFileFolder",
     //创建下载链接
-    createDownloadUrl:"/file/createDownloadUrl",
+    createDownloadUrl: "/file/createDownloadUrl",
     //下载
-    download:"/file/download",
+    download: "/file/download",
     //文件前面的小图标
-    imageUrl:"/api/file/getImage/",
+    imageUrl: "/api/file/getImage/",
     //上传文件
-    uploadFile:"/file/uploadFile"
+    uploadFile: "/file/uploadFile",
+
+
+    //分享文件
+    shareFile: '/share/shareFile',
+    //获取分享文件列表
+    loadShareList: '/share/loadShareList',
+    //取消分享
+    cancelShare: '/share/cancelShare'
 
 }
 

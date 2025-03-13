@@ -74,8 +74,8 @@
             </div>
             <span class="op">
                 <template v-if="row.showOp && row.fileId && row.status===2">
-                  <span class="iconfont icon-share1">分享</span>
-                  <span class="iconfont icon-download" v-if="row.folderType===0">下载</span>
+                  <span class="iconfont icon-share1" @click="share(row)">分享</span>
+                  <span class="iconfont icon-download" v-if="row.folderType===0" @click="download(row)">下载</span>
                   <span class="iconfont icon-del">删除</span>
                   <span class="iconfont icon-edit" @click="editFileName(index)">重命名</span>
                   <span class="iconfont icon-move">移动</span>
@@ -90,6 +90,7 @@
         </template>
       </Table>
     </div>
+    <ShareFile ref="shareRef"></ShareFile>
   </div>
 </template>
 
@@ -97,6 +98,7 @@
 import {ref, reactive, getCurrentInstance, nextTick, onMounted} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {all} from "axios";
+import ShareFile from "@/views/main/ShareFile.vue";
 
 const router = useRouter()
 const route = useRoute()
@@ -276,7 +278,30 @@ const rowSelected = (rows) => {
   })
 }
 
+//批量删除
+const delFileBatch = () => {
 
+}
+
+
+//下载文件
+const download = async (row) => {
+  let result = await proxy.Request({
+    url: proxy.Api.createDownloadUrl + '/' + row.fileId
+  })
+  if (!result) {
+    return;
+  }
+  window.location.href = proxy.api.download + '/' + result.data
+}
+
+
+const shareRef = ref()
+//分享
+const share = (row)=>{
+  shareRef.value.show(row)
+
+}
 </script>
 
 <style scoped>

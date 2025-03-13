@@ -194,7 +194,11 @@ const menus = [
       },
       {
         name: '系统设置',
-        path: '/settings/sysSetting'
+        path: '/settings/sysSettings'
+      },
+      {
+        name: '添加好友',
+        path: '/settings/addFriends'
       }
     ]
   },

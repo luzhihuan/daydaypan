@@ -69,6 +69,15 @@ const router = createRouter({
                     component: () => import('@/views/admin/FileList.vue')
                 },
                 {
+                    path: '/settings/addFriends',
+                    name: '添加好友',
+                    meta: {
+                        needLogin: true,
+                        menuCode: 'settings'
+                    },
+                    component: () => import('@/views/admin/AddFriends.vue')
+                },
+                {
                     path: '/',
                     redirect: '/main/all'
                 },
