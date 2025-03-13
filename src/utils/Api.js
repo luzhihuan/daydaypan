@@ -40,8 +40,10 @@ const api = {
     //文件前面的小图标
     imageUrl:"/api/file/getImage/",
     //上传文件
-    uploadFile:"/file/uploadFile"
-
+    uploadFile:"/file/uploadFile",
+    
+    //检查app
+    checkUpdate:'/update/checkUpdate'
 }
 
 export default api;

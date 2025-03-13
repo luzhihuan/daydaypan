@@ -22,7 +22,7 @@
             <Uploader ref="uploaderRef" @uploadCallback="uploadCallbackHandler"></Uploader>
           </template>
         </el-popover>
-
+        
         <el-dropdown>
           <div class="user-info">
             <div class="avatar">
@@ -88,6 +88,21 @@
     >
     </UpdatePassword>
   </div>
+
+  <el-dialog width="700"  v-model="checkUpdateRef" title="新版本发布！" >
+    <span style="font-size: 25px">{{updateInfo.updateDesc}}</span><br/><br/><br/><br/><br/><br/><br/>
+    <span style="font-size: 25px">下载地址：<a href="#">{{updateInfo.outerLink}}</a></span>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="checkUpdateRef = false">取消</el-button>
+        <el-button type="primary" @click="checkUpdateRef = false">
+          完成
+        </el-button>
+      </div>
+    </template>
+  </el-dialog>
+  
+  
 </template>
 
 <script setup>
@@ -97,6 +112,7 @@ import Avatar from "@/components/Avatar.vue";
 import UpdateAvatar from "@/views/UpdateAvatar.vue";
 import UpdatePassword from "@/views/UpdatePassword.vue";
 import Uploader from "@/views/main/Uploader.vue";
+import Dialog from "@/components/Dialog.vue";
 
 const router = useRouter()
 const route = useRoute()
@@ -278,6 +294,28 @@ const uploadCallbackHandler = ()=>{
     //更新用户空间
   })
 }
+
+
+const checkUpdateRef = ref(true)
+const checkUpdate = async () => {
+  let result = await proxy.Request({
+    url:proxy.Api.checkUpdate,
+    params:{
+    },
+    errorCallback:(res)=>{
+      proxy.Message.error(res.msg)
+    }
+  })
+  if(!result){
+    return;
+  }
+  localStorage.setItem("updateInfo",JSON.stringify(result.data))
+}
+checkUpdate()
+const updateInfo = JSON.parse(localStorage.getItem("updateInfo"))
+
+
+
 </script>
 
 <style scoped lang="scss">
