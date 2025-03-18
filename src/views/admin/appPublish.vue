@@ -3,33 +3,31 @@
     <div class="sys-setting-panel">
       <el-form
           :model="formData"
-          :rules="rules"
           ref="formDataRef"
           label-width="150px"
           @submit.prevent>
-        <el-form-item label="版本号" prop="registerEmailTitle">
+        <el-form-item label="版本号" >
           <el-input
               clearable
-              placeholder="请输入注册邮箱标题"
+              placeholder="版本号"
               v-model.trim="formData.registerEmailTitle">
           </el-input>
         </el-form-item>
-        <el-form-item label="更新内容" prop="registerEmailContent">
+        <el-form-item label="更新内容">
           <el-input
               clearable
-              placeholder="请输入邮箱内容"
+              placeholder="更新内容"
               v-model.trim="formData.registerEmailContent">
           </el-input>
         </el-form-item>
-        <el-form-item label="外部链接" prop="userInitUseSpace">
+        <el-form-item label="外部链接" >
           <el-input
               clearable
-              placeholder="初始化空间大小"
+              placeholder="外部链接"
               v-model.trim="formData.userInitUseSpace">
-            <template #suffix>MB</template>
           </el-input>
         </el-form-item>
-        <el-form-item label="是否灰度发布" prop="codeType">
+        <el-form-item label="是否灰度发布">
           <el-radio-group v-model="formData.codeType">
             <el-radio :label="0">是</el-radio>
             <el-radio :label="1">否</el-radio>
@@ -53,14 +51,6 @@ const {proxy} = getCurrentInstance()
 const formData = ref({})
 const formDataRef = ref()
 const userInfo = ref({})
-
-const rules = {
-  registerEmailTitle: [{required: true, message: '请输入注册邮箱标题'}],
-  registerEmailContent: [{required: true, message: '请输入邮箱内容'}],
-  userInitUseSpace: [
-    {required: true, message: '请输入初始化空间大小'},
-    {validator: proxy.Verify.number, message: '空间大小只能是数字'}]
-}
 
 const getSysSettings = async () => {
   let result = await proxy.Request({

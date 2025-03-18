@@ -13,27 +13,52 @@
             :offset="20"
             transition="none"
             :hide-after="0"
-            :popper-style="{padding:'0'}"
+            :popper-style="{ padding: '0' }"
         >
           <template #reference>
             <span class="iconfont icon-transfer"></span>
           </template>
           <template #default>
-            <Uploader ref="uploaderRef" @uploadCallback="uploadCallbackHandler"></Uploader>
+            <Uploader
+                ref="uploaderRef"
+                @uploadCallback="uploadCallbackHandler"
+            ></Uploader>
           </template>
         </el-popover>
 
         <el-dropdown>
           <div class="user-info">
             <div class="avatar">
-              <!--              <Avatar :userId="userInfo.userId" :avatar="userInfo.avatar" :timestamp="timestamp" :width="46"></Avatar>-->
+              <Avatar :userId="userInfo.userId" :avatar="userInfo.avatar" :timestamp="timestamp" :width="46"></Avatar>
             </div>
-            <!--            <span class="nick-name">{{ userInfo.nickName }}</span>-->
+            <span class="nick-name">
+                {{ userInfo.nickName }}
+                <el-tag
+                    v-if="userInfo.isAdmin"
+                    class="admin-tag"
+                    effect="dark"
+                    type="warning"
+                    size="small"
+                >
+                  <el-icon><Medal/></el-icon>
+                  管理员
+                </el-tag>
+            </span>
           </div>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item @click="updateAvatar">修改头像</el-dropdown-item>
-              <el-dropdown-item @click="updatePassword">修改密码</el-dropdown-item>
+              <el-dropdown-item @click="updateAvatar"
+              >修改头像
+              </el-dropdown-item
+              >
+              <el-dropdown-item @click="updatePassword"
+              >修改密码
+              </el-dropdown-item
+              >
+              <el-dropdown-item @click="showVipDialog"
+              >成为vip
+              </el-dropdown-item
+              >
               <el-dropdown-item @click="layout">退出</el-dropdown-item>
             </el-dropdown-menu>
           </template>
@@ -43,20 +68,26 @@
     <div class="body">
       <div class="left-sider">
         <div class="menu-list">
-          <div :class="['menu-item',item.menuCode==currentMenu.menuCode?'active':'']" v-for="item in menus"
-               @click="jump(item)">
-            <div :class="['iconfont','icon-'+item.icon]"></div>
+          <div
+              :class="[
+              'menu-item',
+              item.menuCode == currentMenu.menuCode ? 'active' : '',
+            ]"
+              v-for="item in filteredMainMenus"
+              @click="jump(item)"
+          >
+            <div :class="['iconfont', 'icon-' + item.icon]"></div>
             <div class="text">{{ item.name }}</div>
           </div>
         </div>
         <div class="menu-sub-list">
           <div
-              :class="['menu-item-sub',currentPath==sub.path?'active':'']"
+              :class="['menu-item-sub', currentPath == sub.path ? 'active' : '']"
               v-for="sub in currentMenu.children"
               @click="jump(sub)"
           >
             <span
-                :class="['iconfont','icon-'+sub.icon]"
+                :class="['iconfont', 'icon-' + sub.icon]"
                 v-if="sub.icon"
             ></span>
             <span class="text">
@@ -68,220 +99,332 @@
           </div>
           <div class="space-info">
             <div>空间使用</div>
-            <div class="percent"></div>
+            <div class="percent">
+              <el-progress
+                  :percentage="Math.floor((useSpaceInfo.useSpace/useSpaceInfo.totalSpace)*10000)/100"
+                  color="#4091ff"></el-progress>
+            </div>
+            <div class="space-use">
+              <div class="use">
+                {{ proxy.Utils.size2Str(useSpaceInfo.useSpace) }}/{{ proxy.Utils.size2Str(useSpaceInfo.totalSpace) }}
+              </div>
+              <div class="iconfont icon-refresh" @click="getUseSpace"></div>
+            </div>
           </div>
         </div>
       </div>
       <div class="body-content">
-        <router-view v-slot="{Component}">
-          <component :is="Component" @addFile="addFile"></component>
+        <router-view v-slot="{ Component }">
+          <component :is="Component" @addFile="addFile" ref="routerViewRef"></component>
         </router-view>
       </div>
     </div>
-    <UpdateAvatar
-        ref="updateAvatarRef"
-        @updateAvatar="reloadAvatar"
-    >
+    <UpdateAvatar ref="updateAvatarRef" @updateAvatar="reloadAvatar">
     </UpdateAvatar>
-    <UpdatePassword
-        ref="updatePasswordRef"
-    >
-    </UpdatePassword>
+    <UpdatePassword ref="updatePasswordRef"></UpdatePassword>
+    <ShowVip ref="showVipRef"></ShowVip>
   </div>
+  <el-dialog width="700" v-model="checkUpdateRef" title="新版本发布！">
+    <span style="font-size: 25px">{{ updateInfo.updateDesc }}</span
+    ><br/><br/><br/><br/><br/><br/><br/>
+    <span style="font-size: 25px">下载地址：{{ updateInfo.outerLink }}</span>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="checkUpdateRef = false">取消</el-button>
+        <el-button type="primary" @click="checkUpdateRef = false">
+          完成
+        </el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
+
+<!--v-for="item in menus"-->
 <script setup>
-import {ref, reactive, getCurrentInstance, nextTick, onMounted, watch} from "vue";
+import {
+  ref,
+  reactive,
+  getCurrentInstance,
+  nextTick,
+  onMounted,
+  watch, computed,
+} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import Avatar from "@/components/Avatar.vue";
 import UpdateAvatar from "@/views/UpdateAvatar.vue";
 import UpdatePassword from "@/views/UpdatePassword.vue";
 import Uploader from "@/views/main/Uploader.vue";
+import {Medal} from '@element-plus/icons-vue'
+import ShowVip from "@/views/ShowVip.vue";
 
-const router = useRouter()
-const route = useRoute()
-const {proxy} = getCurrentInstance()
-const formData = ref({})
-const formDataRef = ref()
-const timestamp = ref(0)
-const userInfo = ref(
-    // proxy.VueCookies.get('userInfo')
-)
+const router = useRouter();
+const route = useRoute();
+const {proxy} = getCurrentInstance();
+const formData = ref({});
+const formDataRef = ref();
+const timestamp = ref(0);
+const userInfo =
+    // ref();
+    ref(proxy.VueCookies.get('userInfo') || {isAdmin: false})
+
+watch(() => proxy.VueCookies.get('userInfo'), (newVal) => {
+  userInfo.value = newVal || {isAdmin: false};
+}, {immediate: true});
 
 const menus = [
   {
-    icon: 'cloude',
-    name: '首页',
-    menuCode: 'main',
-    path: '/main/all',
+    icon: "cloude",
+    name: "首页",
+    menuCode: "main",
+    path: "/main/all",
     allShow: true,
     children: [
       {
-        icon: 'all',
-        name: '全部',
-        category: 'all',
-        path: '/main/all'
+        icon: "all",
+        name: "全部",
+        category: "all",
+        path: "/main/all",
       },
       {
-        icon: 'video',
-        name: '视频',
-        category: 'video',
-        path: '/main/video'
-      }, {
-        icon: 'music',
-        name: '音频',
-        category: 'music',
-        path: '/main/music'
-      }, {
-        icon: 'image',
-        name: '图片',
-        category: 'image',
-        path: '/main/image'
-      }, {
-        icon: 'doc',
-        name: '文档',
-        category: 'doc',
-        path: '/main/doc'
+        icon: "video",
+        name: "视频",
+        category: "video",
+        path: "/main/video",
       },
       {
-        icon: 'more',
-        name: '其他',
-        category: 'others',
-        path: '/main/others'
+        icon: "music",
+        name: "音频",
+        category: "music",
+        path: "/main/music",
       },
-    ]
+      {
+        icon: "image",
+        name: "图片",
+        category: "image",
+        path: "/main/image",
+      },
+      {
+        icon: "doc",
+        name: "文档",
+        category: "doc",
+        path: "/main/doc",
+      },
+      {
+        icon: "more",
+        name: "其他",
+        category: "others",
+        path: "/main/others",
+      },
+    ],
   },
   {
-    path: '/myshare',
-    icon: 'share',
-    name: '分享',
-    menuCode: 'share',
+    path: "/myshare",
+    icon: "share",
+    name: "分享",
+    menuCode: "share",
     allShow: true,
     children: [
       {
-        name: '分享记录',
-        path: '/myshare'
-      }
-    ]
+        name: "分享记录",
+        path: "/myshare",
+      },
+    ],
   },
   {
-    path: '/recycle',
-    icon: 'del',
-    name: '回收站',
-    menuCode: 'recycle',
-    tips: '回收站为你保存10天内删除的文件',
+    path: "/recycle",
+    icon: "del",
+    name: "回收站",
+    menuCode: "recycle",
+    tips: "回收站为你保存10天内删除的文件",
     allShow: true,
     children: [
       {
-        name: '删除的文件',
-        path: '/recycle'
-      }
-    ]
-  }, {
-    path: '/settings/fileList',
-    icon: 'settings',
-    name: '设置',
-    menuCode: 'settings',
-    allShow: false,
+        name: "删除的文件",
+        path: "/recycle",
+      },
+    ],
+  },
+  {
+    path: "/friends/addFriends",
+    icon: "account",
+    name: "好友",
+    menuCode: "friends",
+    allShow: true,
     children: [
       {
-        name: '用户文件',
-        path: '/settings/fileList'
+        name: "添加好友",
+        path: "/friends/addFriends",
       },
       {
-        name: '用户管理',
-        path: '/settings/userList'
+        name: "我的好友",
+        path: "/friends/myFriends",
       },
-      {
-        name: '系统设置',
-        path: '/settings/sysSettings'
-      },
-      {
-        name: '添加好友',
-        path: '/settings/addFriends'
-      }
-    ]
+    ],
   },
-]
+  {
+    path: "/settings/fileList",
+    icon: "settings",
+    name: "设置",
+    menuCode: "settings",
+    // allShow: false,
+    // requiresAdmin: true,
+    children: [
+      {
+        name: "用户文件",
+        path: "/settings/fileList",
+      },
+      {
+        name: "用户管理",
+        path: "/settings/userList",
+      },
+      {
+        name: "系统设置",
+        path: "/settings/sysSettings",
+      },
+      {
+        name: "版本发布",
+        path: "/settings/appPublish",
+      },
+      {
+        name: "审核列表",
+        path: "/settings/checkShareUrl",
+      },
+    ],
+  },
+];
 
-const currentMenu = ref({})
-const currentPath = ref()
+// 计算属性过滤主菜单
+const filteredMainMenus = computed(() => {
+  return menus.filter(menu => {
+    // 需要管理员权限的菜单
+    if (menu.requiresAdmin) {
+      return userInfo.value?.isAdmin;
+    }
+    // 其他菜单保持可见
+    return true;
+  });
+});
+
+
+const currentMenu = ref({});
+const currentPath = ref();
 //页面跳转
 const jump = (data) => {
   if (!data.path || data.menuCode == currentMenu.value.menuCode) {
-    return
+    return;
   }
-  router.push(data.path)
-}
+  router.push(data.path);
+};
 
 const setMenu = (menuCode, path) => {
   const menu = menus.find((item) => {
-    return item.menuCode === menuCode
-  })
-  currentMenu.value = menu
-  currentPath.value = path
-}
+    return item.menuCode === menuCode;
+  });
+  currentMenu.value = menu;
+  currentPath.value = path;
+};
 watch(
     () => route,
     (newVal, oldVal) => {
       if (newVal.meta.menuCode) {
-        setMenu(newVal.meta.menuCode, newVal.path)
+        setMenu(newVal.meta.menuCode, newVal.path);
       }
     },
     {immediate: true, deep: true}
-)
+);
 
 //修改头像
-const updateAvatarRef = ref()
+const updateAvatarRef = ref();
 const updateAvatar = () => {
-  updateAvatarRef.value.show(userInfo.value)
-}
+  updateAvatarRef.value.show(userInfo.value);
+};
 
 const reloadAvatar = () => {
-  userInfo.value = proxy.VueCookies.get('userInfo')
-  timestamp.value = new Date().getTime()
-}
+  userInfo.value = proxy.VueCookies.get("userInfo");
+  timestamp.value = new Date().getTime();
+};
 
 //修改密码
-const updatePasswordRef = ref()
+const updatePasswordRef = ref();
 const updatePassword = () => {
-  updatePasswordRef.value.show()
+  updatePasswordRef.value.show();
+};
+//成为VIP
+const showVipRef = ref()
+const showVipDialog = () => {
+  showVipRef.value.show()
 }
-
 //退出
 const layout = async () => {
   proxy.Confirm({
-    message: '你确定要退出吗?',
+    message: "你确定要退出吗?",
     okfun: async () => {
       let result = await proxy.Request({
         url: proxy.Api.loginOut,
-      })
+      });
       if (!result) {
-        return
+        return;
       }
-      proxy.VueCookies.remove('userInfo')
-      router.push('/login')
-    }
+      proxy.VueCookies.remove("userInfo");
+      router.push("/");
+    },
+  });
+};
+
+//使用空间
+const useSpaceInfo = ref({useSpace: 0, totalSpace: 1})
+const getUseSpace = async () => {
+  let result = await proxy.Request({
+    url: proxy.Api.getUserSpace,
+    showLoading: false,
   })
+  if (!result) {
+    return;
+  }
+  useSpaceInfo.value = result.data
 }
+getUseSpace()
 
-
-const uploaderRef = ref()
+const uploaderRef = ref();
 //控制上传文件列表显示
-const showUploader = ref(false)
+const showUploader = ref(false);
 //上传文件
 const addFile = (data) => {
-  const {file, filePid} = data
-  showUploader.value = true
-  uploaderRef.value.addFile(file, filePid)
-}
+  const {file, filePid} = data;
+  showUploader.value = true;
+  uploaderRef.value.addFile(file, filePid);
+};
 
 //上传文件回调
-const uploadCallbackHandler = ()=>{
-  nextTick(()=>{
+const routerViewRef = ref()
+const uploadCallbackHandler = () => {
+  nextTick(() => {
+    routerViewRef.value.reload()
     //更新用户空间
+    getUseSpace()
+  });
+};
+
+
+let checkUpdateRef = ref(true)
+const checkUpdate = async () => {
+  let result = await proxy.Request({
+    url: proxy.Api.checkUpdate,
+    params: {},
+    errorCallback: (res) => {
+      proxy.Message.error(res.msg)
+    }
   })
+  if (!result) {
+    return;
+  }
+  localStorage.setItem("updateInfo", JSON.stringify(result.data))
 }
+checkUpdate()
+let updateInfo = JSON.parse(localStorage.getItem("updateInfo"))
+
+
 </script>
 
 <style scoped lang="scss">
@@ -322,17 +465,51 @@ const uploadCallbackHandler = ()=>{
     }
 
     .user-info {
-      margin-right: 10px;
+      //margin-right: 10px;
+      //display: flex;
+      //align-items: center;
+      //cursor: pointer;
+      //
+      //.avatar {
+      //  margin: 0 5px 0 15px;
+      //}
+      //
+      //.nick-name {
+      //  color: #05a1f5;
+      //}
       display: flex;
       align-items: center;
-      cursor: pointer;
+      padding: 0 10px;
 
       .avatar {
-        margin: 0 5px 0 15px;
+        margin-right: 12px;
       }
 
-      .nick-name {
-        color: #05a1f5;
+      .user-detail {
+        display: flex;
+        flex-direction: column;
+
+        .nick-name {
+          font-size: 14px;
+          color: #606266;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .admin-tag {
+          border-radius: 4px;
+          padding: 0 6px;
+
+          ::v-deep .el-icon {
+            vertical-align: -0.15em;
+          }
+        }
+      }
+
+      &:hover {
+        background: #f5f7fa;
+        border-radius: 4px;
       }
     }
   }
@@ -374,7 +551,7 @@ const uploadCallbackHandler = ()=>{
         }
 
         .text {
-          color: #06a7ff
+          color: #06a7ff;
         }
       }
     }
@@ -458,4 +635,6 @@ const uploadCallbackHandler = ()=>{
     padding-left: 20px;
   }
 }
+
+
 </style>

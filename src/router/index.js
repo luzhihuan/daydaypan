@@ -42,11 +42,29 @@ const router = createRouter({
                     component: () => import('@/views/recycle/Recycle.vue')
                 },
                 {
+                    path: '/friends/addFriends',
+                    name: '添加好友',
+                    meta: {
+                        needLogin: true,
+                        menuCode: 'friends'
+                    },
+                    component: () => import('@/views/friends/AddFriends.vue')
+                },
+                {
+                    path: '/friends/myFriends',
+                    name: '我的好友',
+                    meta: {
+                        needLogin: true,
+                        menuCode: 'friends'
+                    },
+                    component: () => import('@/views/friends/MyFriends.vue')
+                },
+                {
                     path: '/settings/sysSettings',
                     name: '系统设置',
                     meta: {
                         needLogin: true,
-                        menuCode: 'settings'
+                        menuCode: 'settings',
                     },
                     component: () => import('@/views/admin/SysSettings.vue')
                 },
@@ -55,7 +73,7 @@ const router = createRouter({
                     name: '用户管理',
                     meta: {
                         needLogin: true,
-                        menuCode: 'settings'
+                        menuCode: 'settings',
                     },
                     component: () => import('@/views/admin/UserList.vue')
                 },
@@ -69,30 +87,54 @@ const router = createRouter({
                     component: () => import('@/views/admin/FileList.vue')
                 },
                 {
-                    path: '/settings/addFriends',
-                    name: '添加好友',
+                    path: '/settings/appPublish',
+                    name: '版本发布',
                     meta: {
                         needLogin: true,
                         menuCode: 'settings'
                     },
-                    component: () => import('@/views/admin/AddFriends.vue')
+                    component: () => import('@/views/admin/AppPublish.vue')
                 },
                 {
-                    path: '/',
-                    redirect: '/main/all'
+                    path: '/settings/checkShareUrl',
+                    name: '审核列表',
+                    meta: {
+                        needLogin: true,
+                        menuCode: 'settings'
+                    },
+                    component: () => import('@/views/admin/CheckShareUrl.vue')
                 },
             ]
+        },
+        {
+            path: '/shareCheck/:shareId',
+            name: '分享校验',
+            component: () => import('@/views/webShare/ShareCheck.vue'),
+        },
+        {
+            path: '/share/:shareId',
+            name: '分享',
+            component: () => import('@/views/webShare/Share.vue'),
         },
     ],
 })
 
 // router.beforeEach((to, from, next) => {
 //     const userInfo = VueCookies.get('userInfo');
-//     if (to.matched.some(record => record.meta.needLogin) && !userInfo) {
-//         next('/login');
-//     } else {
-//         next();
+//     const settingsRoutes = [
+//         '/settings/fileList',
+//         '/settings/userList',
+//         '/settings/sysSettings'
+//     ];
+//
+//     // 拦截所有设置相关路由
+//     if (settingsRoutes.includes(to.path)) {
+//         if (!userInfo?.isAdmin) {
+//             next('/main/all');  // 非管理员重定向到首页
+//             return;
+//         }
 //     }
+//     next();
 // });
 
 export default router

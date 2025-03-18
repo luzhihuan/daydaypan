@@ -30,7 +30,7 @@ const api = {
     //获取文件夹信息
     getFolderInfo: "/file/getFolderInfo",
     //删除文件
-    delFile: "/file/delFile",
+    remove2Rec: "/file/remove2Rec",
     //移动文件
     changeFileFolder: "/file/changeFileFolder",
     //创建下载链接
@@ -51,8 +51,36 @@ const api = {
     cancelShare: '/share/cancelShare',
 
 
+    //获取回收站列表
+    loadRecycleList: '/recycle/loadRecycleList',
+    //还原文件
+    recoverFile: '/recycle/recoverFile',
+    //彻底删除文件
+    delFile: '/recycle/delFile',
 
-    
+    //获取系统设置
+    getSysSettings: '/admin/getSysSettings',
+    //保存系统设置
+    saveSysSetting: '/admin/saveSysSetting',
+    //用户列表
+    loadUserList: '/admin/loadUserList',
+    //更新用户状态
+    updateUserStatus: '/admin/updateUserStatus',
+    //更新用户空间
+    updateUserSpace: '/admin/updateUserSpace',
+    //获取所有用户文件
+    loadAllFileList: '/admin/loadFileList',
+    //获取所有用户目录
+    getFolderInfoAdmin: '/admin/getFolderInfo',
+    //获取文件（预览）
+    // getFile/{userId}/{fileId}
+
+//获取图片信息
+// /ts/getVideoInfo/{userId}/{fileId}
+
+//删除用户文件
+    delFileAdmin: '/admin/delFile',
+
     //检查app
     checkUpdate: '/update/checkUpdate',
 

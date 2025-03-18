@@ -198,5 +198,5 @@ const rowSelected = (rows) => {
 </script>
 
 <style scoped lang="scss">
-@import "@/assets/file.list.scss";
+@use "@/assets/file.list.scss";
 </style>

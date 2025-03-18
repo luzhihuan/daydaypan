@@ -431,7 +431,7 @@ const doSubmit = () => {
       proxy.VueCookies.set('userInfo', result.data, 0)
       proxy.VueCookies.set('token', result.data.token, 0)
       //重定向到原始页面
-      const redirectUrl = route.query.redirectUrl || '/'
+      const redirectUrl = route.query.redirectUrl || '/main/all'
       router.push(redirectUrl)
     } else if (opType.value == 2) {
       proxy.Message.success('重置密码成功，请登录')

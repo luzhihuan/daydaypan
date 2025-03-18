@@ -16,26 +16,26 @@ const instance = axios.create({
     timeout: 10 * 1000
 });
 
-//请求前拦截器
-instance.interceptors.request.use(
-    (config) => {
-        if (config.showLoading) {
-            loading = ElLoading.service({
-                lock: true,
-                text: '加载中.......',
-                background: 'rgba(0,0,0,0.7)',
-            });
-        }
-        return config;
-    },
-    (error) => {
-        if (config.showLoading && loading) {
-            loading.close();
-        }
-        Message.error('请求发送失败');
-        return Promise.reject('请求发送失败');
-    }
-);
+// //请求前拦截器
+// instance.interceptors.request.use(
+//     (config) => {
+//         if (config.showLoading) {
+//             loading = ElLoading.service({
+//                 lock: true,
+//                 text: '加载中.......',
+//                 background: 'rgba(0,0,0,0.7)',
+//             });
+//         }
+//         return config;
+//     },
+//     (error) => {
+//         if (config.showLoading && loading) {
+//             loading.close();
+//         }
+//         Message.error('请求发送失败');
+//         return Promise.reject('请求发送失败');
+//     }
+// );
 
 //请求后拦截器
 instance.interceptors.response.use(

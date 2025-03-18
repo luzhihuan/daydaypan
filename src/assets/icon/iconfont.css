@@ -165,3 +165,7 @@
   content: "\e6e2";
 }
 
+.icon-friend:before {
+  content: "\e601";
+}
+
