@@ -14,5 +14,18 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
-  },
+  },server:{
+    //修改端口，增加代理
+    port:7071,
+    hmr:true,
+    proxy:{
+      "/api":{
+        target:"http://10.202.14.239:7070",
+        changeOrigin:true,
+        pathRewrite:{
+          "^api":"/api"
+        }
+      }
+    }
+  }
 })
